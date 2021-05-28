@@ -15,7 +15,7 @@ import django_heroku
 import os
 import dj_database_url
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# BASE_DIR and PROJECT_ROOT both refer to the location of the project root
 BASE_DIR = Path(__file__).resolve().parent.parent
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -35,7 +35,7 @@ else:
     else:
         DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1','https://roadbuddy-io.herokuapp.com/','localhost','0.0.0.0']
+ALLOWED_HOSTS = ['127.0.0.1','roadbuddy-io.herokuapp.com/','localhost','0.0.0.0']
 
 
 # Application definition
