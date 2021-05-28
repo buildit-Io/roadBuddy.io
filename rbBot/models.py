@@ -8,3 +8,11 @@ class User(models.Model):
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
+
+class Incoming(models.Model):
+
+    update_id = models.IntegerField(unique=True)
+    message = models.TextField(max_length=4000)
+
+    def __str__(self):
+        return f'{self.update_id}'

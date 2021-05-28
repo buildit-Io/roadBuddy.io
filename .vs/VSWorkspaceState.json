@@ -1,12 +1,10 @@
 {
   "ExpandedNodes": [
     "",
-    "\\.git\\refs",
-    "\\.git\\refs\\remotes",
+    "\\rbBot",
     "\\rbHook",
-    "\\rbHook\\settings",
-    "\\rbHook\\staticfiles"
+    "\\rbHook\\settings"
   ],
-  "SelectedNode": "\\rbHook\\settings\\base.py",
+  "SelectedNode": "\\rbBot\\views.py",
   "PreviewInSolutionExplorer": false
 }

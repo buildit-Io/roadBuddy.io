@@ -14,9 +14,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path
-from .views import index, talkin_to_me_bruh
+from django.views.decorators.csrf import csrf_exempt
+from .views import index, rbHookView
  
 urlpatterns = [
     path('hello/', index),
-    path('hook/', talkin_to_me_bruh),
+    path('bot-hook/', csrf_exempt(rbHookView.as_view())),
 ]
