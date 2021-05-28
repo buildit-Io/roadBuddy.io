@@ -1,2 +1,2 @@
-web: gunicorn rbHook.wsgi
-web: gunicorn rbHook.wsgi --log-file -
+web: gunicorn rb.wsgi
+web: gunicorn rb.wsgi --log-file -
