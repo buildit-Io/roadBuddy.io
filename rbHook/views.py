@@ -21,7 +21,7 @@ class rbHookView(View):
         updateId = telegramData["update_id"]
         message = telegramData["message"]
     
-        x = roadBuddyModel(
+        x = incoming(
             update_id = updateId,    
             message = message    
         )
