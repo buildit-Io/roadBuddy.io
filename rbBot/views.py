@@ -21,7 +21,7 @@ class rbHookView(View):
         
 
         print(telegramData);
-        x = incoming(
+        x = Incoming(
             update_id = updateId,    
             message = message    
         )
