@@ -1,2 +1,2 @@
-web: gunicorn roadBuddy.wsgi
-web: gunicorn roadBuddy.wsgi --log-file -
+web: gunicorn rbHook.wsgi
+web: gunicorn rbHook.wsgi --log-file -
