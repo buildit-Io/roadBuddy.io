@@ -13,7 +13,7 @@ TELEGRAM_URL = "https://api.telegram.org/bot"
 TUTORIAL_BOT_TOKEN = os.getenv("SECRET_TOKEN", "error_token")
 
 
-# https://api.telegram.org/bot<token>/setWebhook?url=<url>/webhooks/
+# https://api.telegram.org/bot<token>/setWebhook?url=<url>/webhook/
 class rbHookView(View):
 
     def post(self, request, *args, **kwargs):
