@@ -11,7 +11,7 @@ def index(request):
 os.environ['SECRET_TOKEN'] = "1762553405:AAGTA9OGDw5KKZfEDcimysIx09-uud5QEOA";
 TELEGRAM_URL = "https://api.telegram.org/bot"
 TUTORIAL_BOT_TOKEN = os.getenv("SECRET_TOKEN", "error_token")
-# https://api.telegram.org/bot<token>/setWebhook?url=<url>/webhook/
+# https://api.telegram.org/bot<token>/setWebhook?url=https://roadbuddy-io.herokuapp.com/rbBot/bot-hook/
 class rbHookView(View):
 
     def post(self, request, *args, **kwargs):
