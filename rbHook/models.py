@@ -2,8 +2,8 @@ from django.db import models
 
 class incoming(models.Model):
 
-    update_id = models.CharField(max_length=60)
-    message = models.TextField(default='NA', editable=False)
+    update_id = models.IntegerField(unique=True)
+    message = models.TextField(max_length=4096)
 
     def __str__(self):
-        return self.name
+        return f'{self.update_id}'

@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
     # my app
     'rbHook',
+    'rbBot.apps.RbbotConfig',
 ]
 
 MIDDLEWARE = [
