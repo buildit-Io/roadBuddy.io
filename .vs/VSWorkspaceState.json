@@ -1,0 +1,14 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\.git",
+    "\\.git\\refs",
+    "\\.git\\refs\\remotes",
+    "\\roadBuddy",
+    "\\roadBuddy\\roadBuddy",
+    "\\roadBuddy\\roadBuddy\\settings",
+    "\\roadBuddy\\roadBuddy\\staticfiles"
+  ],
+  "SelectedNode": "\\roadBuddy\\roadBuddy\\settings\\base.py",
+  "PreviewInSolutionExplorer": false
+}
