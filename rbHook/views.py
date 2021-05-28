@@ -13,7 +13,7 @@ TELEGRAM_URL = "https://api.telegram.org/bot"
 TUTORIAL_BOT_TOKEN = os.getenv("SECRET_TOKEN", "error_token")
 
 
-# https://api.telegram.org/bot<token>/setWebhook?url=<url>/webhooks/tutorial/
+# https://api.telegram.org/bot<token>/setWebhook?url=<url>/webhooks/
 class rbHookView(View):
 
     def post(self, request, *args, **kwargs):
@@ -29,7 +29,7 @@ class rbHookView(View):
 
         print(telegramData);
 
-        msg = "Automated Response"
+        msg = "roadBuddy.io is coming soon!"
         self.send_message(msg, message["chat"]["id"])
         return JsonResponse({"ok": "POST request processed"})
     
