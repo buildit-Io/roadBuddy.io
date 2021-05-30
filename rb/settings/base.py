@@ -17,7 +17,7 @@ import os
 import dj_database_url
 # hid keys in local _secrets.py NOT PUSHED TO GITHUB
 try:
-    import _secrets as secure
+    import rb.settings._secrets as secure
     SECRET_KEY_1 = secure.SECRET_KEY_1
     SECRET_KEY_3 = secure.SECRET_KEY_3
     SECRET_KEY_4 = secure.SECRET_KEY_4
