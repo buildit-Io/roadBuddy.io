@@ -24,7 +24,11 @@ try:
     SECRET_KEY_5 = secure.SECRET_KEY_5
     SECRET_KEY_6 = secure.SECRET_KEY_6
 except ImportError:
-    SECRET_KEY_1,SECRET_KEY_3,SECRET_KEY_4,SECRET_KEY_5,SECRET_KEY_6 = "error_token"
+    SECRET_KEY_1 = "error_token"
+    SECRET_KEY_3 = "error_token"
+    SECRET_KEY_4 = "error_token"
+    SECRET_KEY_5 = "error_token"
+    SECRET_KEY_6 = "error_token"
     
 # BASE_DIR and PROJECT_ROOT both refer to the location of the project root
 # - manually setted the path due to path issues caused by Path Object

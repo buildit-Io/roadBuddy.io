@@ -4,8 +4,9 @@ from .models import Incoming
 # hid keys in local _secrets.py NOT PUSHED TO GITHUB
 try:
     import rb.settings._secrets as secure
+    SECRET_KEY_2 = secure.SECRET_KEY_2
 except ImportError:
-    pass
+    SECRET_KEY_2 = "error_token"
 import json
 import os
 import requests
@@ -14,7 +15,7 @@ def index(request):
     return HttpResponse("Hello, world. This is the bot app.")
 
 TELEGRAM_URL = "https://api.telegram.org/bot"
-TOKEN = os.getenv("SECRET_KEY_2", secure.SECRET_KEY_2)
+TOKEN = os.getenv("SECRET_KEY_2", SECRET_KEY_2)
 # https://api.telegram.org/bot<token>/setWebhook?url=https://roadbuddy-io.herokuapp.com/rbBot/bot-hook/
 class rbHookView(View):
 
