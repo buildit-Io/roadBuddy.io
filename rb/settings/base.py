@@ -16,7 +16,10 @@ import django_heroku
 import os
 import dj_database_url
 # hid keys in local _secrets.py NOT PUSHED TO GITHUB
-from ._secrets import *
+try:
+    import _secrets as secure
+except ImportError:
+    pass
 
 # BASE_DIR and PROJECT_ROOT both refer to the location of the project root
 # - manually setted the path due to path issues caused by Path Object
@@ -28,7 +31,7 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY_1", SECRET_KEY_1)
+SECRET_KEY = os.getenv("SECRET_KEY_1", secure.SECRET_KEY_1)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', None)
