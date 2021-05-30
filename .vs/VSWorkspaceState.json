@@ -1,10 +1,7 @@
 {
   "ExpandedNodes": [
-    "",
-    "\\rbBot",
-    "\\rbHook",
-    "\\rbHook\\settings"
+    ""
   ],
-  "SelectedNode": "\\rbBot\\views.py",
+  "SelectedNode": "\\rbBot",
   "PreviewInSolutionExplorer": false
 }
