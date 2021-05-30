@@ -1,0 +1,8 @@
+# ALL THE SECRETS NOT PUSHED TO GITHUB
+
+SECRET_KEY_1 = "svdsOifn0e98O-1278dg)(FhWeunuiufd8903urjND*(HWJA&e"
+SECRET_KEY_2 = "1762553405:AAElSdyVuG3numh3FOWrXCl45063fTx1Xok"
+SECRET_KEY_3 = "roadbuddy-io"
+SECRET_KEY_4 = "postgres"
+SECRET_KEY_5 = "Potyger@1999"
+SECRET_KEY_6 = "localhost"

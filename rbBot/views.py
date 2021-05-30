@@ -1,6 +1,8 @@
 from django.http import HttpResponse, JsonResponse
 from django.views import View
 from .models import Incoming
+# hid keys in local _secrets.py NOT PUSHED TO GITHUB
+from rb.settings._secrets import *
 import json
 import os
 import requests
@@ -8,9 +10,8 @@ import requests
 def index(request):
     return HttpResponse("Hello, world. This is the bot app.")
 
-os.environ['SECRET_TOKEN'] = "1762553405:AAGTA9OGDw5KKZfEDcimysIx09-uud5QEOA";
 TELEGRAM_URL = "https://api.telegram.org/bot"
-TUTORIAL_BOT_TOKEN = os.getenv("SECRET_TOKEN", "error_token")
+TOKEN = os.getenv("SECRET_KEY_2", SECRET_KEY_2)
 # https://api.telegram.org/bot<token>/setWebhook?url=https://roadbuddy-io.herokuapp.com/rbBot/bot-hook/
 class rbHookView(View):
 
@@ -44,5 +45,5 @@ class rbHookView(View):
             "parse_mode": "Markdown",
         }
         response = requests.post(
-            f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendMessage", data=data
+            f"{TELEGRAM_URL}{TOKEN}/sendMessage", data=data
         )

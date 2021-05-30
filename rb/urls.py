@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+# added admin site as well as all the urls from rbBot
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('rbBot/', include('rbBot.urls')),
