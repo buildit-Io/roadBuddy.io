@@ -16,7 +16,7 @@ import os
 try:
     import rb.settings._secrets as secure
     SECRET_KEY_1 = secure.SECRET_KEY_1
-    DATABASE_URL = "error_token"
+    DATABASE_URL = secure.DATABASE_URL
 except ImportError:
     SECRET_KEY_1 = "error_token"
     DATABASE_URL = "error_token"
@@ -100,7 +100,6 @@ import psycopg2
 DATABASES = {}
 os.environ['DATABASE_URL'] = os.getenv("DATABASE_URL", DATABASE_URL)
 DATABASES['default'] = herokuDB.config()
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
