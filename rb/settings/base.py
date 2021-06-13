@@ -11,24 +11,15 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
-# added these 3 imports for out of the box support for django on heroku
-import django_heroku
 import os
-import dj_database_url
 # hid keys in local _secrets.py NOT PUSHED TO GITHUB
 try:
     import rb.settings._secrets as secure
     SECRET_KEY_1 = secure.SECRET_KEY_1
-    SECRET_KEY_3 = secure.SECRET_KEY_3
-    SECRET_KEY_4 = secure.SECRET_KEY_4
-    SECRET_KEY_5 = secure.SECRET_KEY_5
-    SECRET_KEY_6 = secure.SECRET_KEY_6
+    DATABASE_URL = "error_token"
 except ImportError:
     SECRET_KEY_1 = "error_token"
-    SECRET_KEY_3 = "error_token"
-    SECRET_KEY_4 = "error_token"
-    SECRET_KEY_5 = "error_token"
-    SECRET_KEY_6 = "error_token"
+    DATABASE_URL = "error_token"
     
 # BASE_DIR and PROJECT_ROOT both refer to the location of the project root
 # - manually setted the path due to path issues caused by Path Object
@@ -101,18 +92,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'rb.wsgi.application'
 
+# Heroku Database Configuration
+import dj_database_url as herokuDB
+import psycopg2
 
-# Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': SECRET_KEY_3,
-        'USER': SECRET_KEY_4,
-        'PASSWORD':SECRET_KEY_5,
-        'HOST': SECRET_KEY_6
-    }
-}
+DATABASES = {}
+os.environ['DATABASE_URL'] = os.getenv("DATABASE_URL", DATABASE_URL)
+DATABASES['default'] = herokuDB.config()
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -153,19 +141,11 @@ USE_TZ = True
 STATIC_URL = '../static/'
 STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR,'static')]
-# recommended out of the box connector for static files to work out of the box with
-# heroku
+# recommended out of the box connector for static files to work out of the box with heroku
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-# staticfile debug lines 
-# print(STATIC_URL)
-# print(BASE_DIR)
-# print(STATIC_ROOT)
-# print(STATICFILES_DIRS)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# DO NOT TOUCH IMPORT LINE TO WORK OUT OF THE BOX WITH HEROKU
-django_heroku.settings(locals())
+
