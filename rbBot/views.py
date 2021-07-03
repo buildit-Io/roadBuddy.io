@@ -143,9 +143,9 @@ class rbHookView(View):
             #########################################
             Logic.delPlanningSession(callbackData)
         elif callbackData['data'] == "get_saved":
-            Reply.naCallback(target)
+            Reply.naCallback(instance)
         elif callbackData['data'] == "wipe":
-            Reply.naCallback(target)
+            Reply.naCallback(instance)
         elif callbackData['data'] == "pre_quit":
             Reply.warningCallback(instance)
             Reply.preQuit(target,message_id)
