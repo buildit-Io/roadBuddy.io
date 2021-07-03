@@ -236,7 +236,7 @@ REPLY_MATRIX = {
         "inline_message_id": "",
         "text": "",
         "parse_mode" : "Html",
-        "reply_markup": json.dumps(MARKUP_MATRIX['VISUALISE']),
+        "reply_markup": json.dumps(MARKUP_MATRIX['PRE_QUIT']),
     }, 
     "QUIT" : {
         "chat_id": "",
