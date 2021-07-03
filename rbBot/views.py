@@ -1,9 +1,9 @@
 from django.http import HttpResponse, JsonResponse
 from django.views import View
-from .models import PlanningSession, User, Temp
-from .logic import *
-from .interactions import *
+from .models import PlanningSession, User, Temp, Route
 import json
+import rbBot.botbrain.logic as Logic
+import rbBot.botbrain.reply as Reply
 
 def index(request):
     return HttpResponse("Hello, world. This is the bot app.")
@@ -17,6 +17,9 @@ class rbHookView(View):
         # DEBUGGING LINE #
         ##################
         print(telegramData)
+        ########################
+        # COMMENT OUT TO RESET #
+        ########################
         self.postHandler(telegramData)
         return JsonResponse({"ok": "POST request processed"})
     
@@ -30,14 +33,14 @@ class rbHookView(View):
             key = message['text']
 
             if key[1:] != "start":
-                sender = getTarget(message)
-                if hasUser(User,sender):
-                    if isActive(sender):
+                sender = Logic.getTarget(message)
+                if Logic.hasUser(User,sender):
+                    if Logic.isActive(sender):
                        pass 
-                elif hasUser(Temp,sender):
+                elif Logic.hasUser(Temp,sender):
                    pass
                 else:
-                    no_reply(sender)
+                    Reply.no_reply(sender)
                     return
 
             if (('entities' in message.keys()) and ('bot_command' in message['entities'][0]['type'])):
@@ -53,22 +56,23 @@ class rbHookView(View):
         message_id = message['message_id']
         target = message['chat']['id']
 
-        if not hasUser(User,sender):
-            addTmp(message)
-            registerQuery(target)
+        if not Logic.hasUser(User,sender):
+            Logic.addTmp(message)
+            Reply.registerQuery(target)
             return
 
         if command == "start":
-            user = User.objects.filter(user_id=sender).get();
-            welcome(target,user)
-            provideChoice(target)
-            activate(user,message_id)
+            Reply.welcome(target,sender)
+            Reply.provideChoice(target)
+            Logic.activate(message_id,sender)
         elif command == "quit":
-            user = User.objects.filter(user_id=sender).get();
-            commandQuit(target,user)
-            deactivate(user,message_id)
+            if Logic.isPlanning(sender):
+                Logic.stopPlanning(sender)
+                Logic.delPlanningSession(callbackData)
+            Reply.commandQuit(target,sender)
+            Logic.deactivate(message_id,sender)
         else:
-            no_reply(target)
+            Reply.no_reply(target)
 
     def callbackHandler(self, callbackData):
         
@@ -76,81 +80,117 @@ class rbHookView(View):
         instance = callbackData['id']
         message_id = callbackData['message']['message_id']
         target = callbackData['message']['chat']['id']
-        user = User.objects.filter(user_id=sender).get();
+        
+        #################################
+        # TEMPORARY ERROR HANDLING LINE #
+        #################################
+        if not Logic.hasUser(User,sender):
+            Reply.invalidCallback(instance)
+            Reply.no_reply(target)
+            return
 
-        if message_id <= user.latest:
-            invalidCallback(instance)
+        if message_id <= Logic.getUser(User,sender).latest_message:
+            Reply.invalidCallback(instance)
             return
         
-        if callbackData['data'] == "plan":
-            if not isPlanning:
-                startPlanning(user)
-                addPlanningSession(callbackData)
-            planCallback(instance)
-            planClicked(target,message_id)
+        if callbackData['data'] == "plan" or callbackData['data'] == "reset_plan_clicked":   
+            if callbackData['data'] == "reset_plan_clicked":
+                Reply.postResetCallback(instance)
+            if Logic.isPlanning(sender):
+                Reply.prePlanCallback(instance)
+                Reply.prePlanClicked(target,message_id)
+            else:
+                Logic.startPlanning(sender)
+                Logic.addPlanningSession(callbackData)
+                Reply.planCallback(instance)
+                Reply.planClicked(target,message_id)
         elif callbackData['data'] == "not_plan":
-            notplanCallback(instance)
-            notplanClicked(target,message_id)
-        elif callbackData['data'] == "edit_plan":
-            editCallback(instance)
-            editPlan(target,message_id)
+            Reply.notplanCallback(instance)
+            Reply.notplanClicked(target,message_id)
+        elif callbackData['data'] == "plan_help":
+            Reply.planHelpCallback(instance)
+        elif callbackData['data'] == "resume_plan":
+            Reply.resumePlanCallback(instance)
+            Reply.resumePlanClicked(target,message_id,Logic.retrieveDests(sender))
+        elif callbackData['data'] == "reset_plan":
+            Logic.stopPlanning(sender)
+            Logic.delPlanningSession(callbackData)
+            Reply.warningCallback(instance)
+            Reply.resetPlanClicked(target,message_id)
+        elif callbackData['data'] == "pre_plan":
+            Reply.prePlanCallback(instance)
+            Reply.prePlanClicked(target,message_id)
+        elif callbackData['data'] == "edit_plan": #include an edit plan options
+            Reply.editCallback(instance)
+            Reply.editPlan(target,message_id)
         elif callbackData['data'] == "options":
-            if isPlanning(sender):
-                stopPlanning(user)
-                delPlanningSession(callbackData)
-            backCallback(instance)
-            backToOptions(target,message_id)
+            Reply.backCallback(instance)
+            Reply.backToOptions(target,message_id)
         elif callbackData['data'] == "plan_next":
-            preRoutingCallback(instance)
-            preRouting(target,message_id)
+            Reply.warningCallback(instance)
+            Reply.preRouting(target,message_id,Logic.retrieveDests(sender))
         elif callbackData['data'] == "visualise":
-            stopPlanning(user)
-            delPlanningSession(callbackData)
-            routeCallback(instance)
-            route(target,message_id)
+            Logic.stopPlanning(sender)
+            Logic.confirmRoute(sender)
+            ##################################################
+            # TEMPORARY DO NOT RESPECT SEQUENTIAL PROCESSING #
+            ##################################################
+            # Logic.delPlanningSession(callbackData)
+            Reply.visualiseCallback(instance)
+            Reply.visualise(target,message_id)
+            #########################################
+            # SHIFTED TO BE LAST MESSAGE TO PROCESS #
+            #########################################
+            Logic.delPlanningSession(callbackData)
         elif callbackData['data'] == "get_saved":
-            pass
+            Reply.naCallback(target)
         elif callbackData['data'] == "wipe":
-            pass
+            Reply.naCallback(target)
         elif callbackData['data'] == "pre_quit":
-            preQuitCallback(instance)
-            preQuit(target,message_id)
+            Reply.warningCallback(instance)
+            Reply.preQuit(target,message_id)
         elif callbackData['data'] == "quit":
-            quitCallback(instance)
-            inlineQuit(target,message_id,user)
-            deactivate(user,message_id)
+            if Logic.isPlanning(sender):
+                Logic.stopPlanning(sender)
+                Logic.delPlanningSession(callbackData)
+            Reply.quitCallback(instance)
+            Reply.inlineQuit(target,message_id,sender)
+            Logic.deactivate(message_id,sender)
         else:
-            no_reply(target)
+            Reply.no_reply(target)
         
     def replyHandler(self,command,message):
-        LOCAL_CACHE = []
         sender = message['from']['id']
         message_id = message['message_id']
-        if hasUser(User, sender):
-            if isPlanning(sender):    
+        
+        if Logic.hasUser(User, sender):
+            Reply.delete_message(sender,message_id)
+            if Logic.isPlanning(sender):    
                 current = User.objects.get(user_id=sender)
                 session = PlanningSession.objects.get(user=current)
-                if isValidDest(message['text']):
-                    addDest(session.chat_id, session.message_id)
-                    addDestCallback(session.instance)
+                if Logic.locExists(message['text']):
+                    result = Logic.getResult(message['text'])
+                    Logic.logDest(result,sender)
+                    Logic.addToRoute(result,message['text'],sender)
+                    Reply.addDest(session.chat_id,session.message_id,Logic.retrieveDests(sender))
                 else:
-                    invalidCallback(session.instance)
+                    Reply.invalidDest(session.chat_id,session.message_id,Logic.retrieveDests(sender))
             else:
-                no_reply(sender)
-        elif hasUser(Temp,sender):
-            if isRegistering(message['text']):
-                deleteTmp(message)
+                Reply.no_reply(sender)
+        elif Logic.hasUser(Temp,sender):
+            if Logic.isRegistering(message['text']):
+                Logic.deleteTmp(message)
                 if message['text'] == 'Register':
-                    addUser(message)
-                    registered(sender)
-                    activate(User.objects.filter(user_id=sender).get(),message_id);
-                    provideChoice(sender)
+                    Logic.addUser(message)
+                    Reply.registered(sender)
+                    Logic.activate(message_id,sender);
+                    Reply.provideChoice(sender)
                 elif message['text'] == 'Back':
-                    nextTime(sender)
+                    Reply.nextTime(sender)
                 else:
-                    no_reply(sender)
+                    Reply.no_reply(sender)
         else:
-            no_reply(sender)
+            Reply.no_reply(sender)
 
     def get(self, request, *args, **kwargs):
         return JsonResponse({"ok": "POST request processed"})
