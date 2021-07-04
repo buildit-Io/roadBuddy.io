@@ -16,7 +16,8 @@ import requests
 
 GEOCODE_URL = "https://geocode.search.hereapi.com/v1/geocode"
 ROUTING_URL = "https://router.hereapi.com/v8/routes"
-MAPPING_URL = "https://image.maps.ls.hereapi.com/mia/1.6/mapview"
+MAPPING_URL = "https://image.maps.ls.hereapi.com/mia/1.6/routing"
+MAPVIEW_URL = "https://image.maps.ls.hereapi.com/mia/1.6/mapview"
 GEOCODE_TOKEN = os.getenv("SECRET_KEY_3", SECRET_KEY_3)
 
 def getTarget(data):
@@ -230,6 +231,8 @@ def confirmRoute(sender):
     user.routes_created += 1;
     user.save()
     routeQuery = getRoute(user,user.planning_route)
+    if not routeQuery.exists():
+        return
     route = routeQuery.get()
     route.logged = True
     route.save()
@@ -239,16 +242,78 @@ def confirmRoute(sender):
     for dest in destList:
         waypoint = str(dest['latitude']) + "," + str(dest['longtitude'])
         waypointList.append(waypoint)
-    genRoute(waypointList)
+    genRoute(waypointList,route.id)
 
-def genRoute(dests):
+def genRoute(dests,picId):
+    if len(dests) > 2:
+        count = 0
+        waypoints = {}
+        markers = {}
+        for dest in dests:
+            point = f'waypoint{count}'
+            mark = f'poix{count}'
+            waypoints[point] = dest
+            markers[mark] = dest + f";white;blue;30;{count}"
+            count+=1
+        paramSetA = {**waypoints,**markers}
+        paramSetB = {'ppi': 500,
+                    'f' : 0,
+                    'z': 19.75,
+                    'h': 2048,
+                    'w': 2048,
+                    't': 0,
+                    'lw': 6,
+                    'lc': '1652B4',
+                    'sc': '000000',
+                    'apiKey': GEOCODE_TOKEN,}
+        allParams = {**paramSetA,**paramSetB}
+        response = requests.get(
+            MAPPING_URL,
+            params= allParams
+        )
+    elif len(dests) == 2:
+        response = requests.get(
+            MAPPING_URL,
+            params={'ppi': 500,
+                    'f' : 0,
+                    'waypoint0': dests[0],
+                    'poix0': dests[0]+";white;blue;30;location 0",
+                    'waypoint1': dests[1],
+                    'poix1': dests[1]+";white;blue;30;location 1",
+                    'z': 19.75,
+                    'h': 2048,
+                    'w': 2048,
+                    't': 0,
+                    'lw': 6,
+                    'lc': '1652B4',
+                    'sc': '000000',
+                    'apiKey': GEOCODE_TOKEN,}
+        )
+    elif len(dests) == 1:
+        response = requests.get(
+            MAPVIEW_URL,
+            params={'c' : dests[0],
+                    'ppi':500,
+                    'z' : 19.75,
+                    'h': 2048,
+                    'w': 2048,
+                    'apiKey': GEOCODE_TOKEN}
+        )
+    else:
+        return
+    #convert to image and save to name, store image name as route.id
+    print(f'picture development response: {response}')
+    # print(response.url)
+    data = response.content
+    with open(f'tmpVis/{picId}.png','wb') as f:
+       f.write(data) 
+     
+
+IMAGE_URL = "https://roadbuddy-io.herokuapp.com/rbBot/route"
+LOCAL_IMAGE_URL = "https://b9a60c9f1db0.ngrok.io/rbBot/route"
+def routeURL(ImageSelector):
     response = requests.get(
-        ROUTING_URL,
-        params={'transportMode' : "car",
-                'origin': dests[0],
-                'via': dests[1:-1],
-                'destination': dests[-1],
-                'return': 'polyline,summary,passthrough',
-                'apiKey': GEOCODE_TOKEN,}
+        LOCAL_IMAGE_URL,
+        params={'routeNumber' : ImageSelector}
     )
-
+    return str(response.request.url)

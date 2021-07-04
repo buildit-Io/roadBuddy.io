@@ -1,4 +1,4 @@
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, FileResponse
 from django.views import View
 from .models import PlanningSession, User, Temp, Route
 import json
@@ -7,6 +7,20 @@ import rbBot.botbrain.reply as Reply
 
 def index(request):
     return HttpResponse("Hello, world. This is the bot app.")
+
+class routeView(View):
+
+    def get(self, request, *args, **kwargs):
+        try:
+            info = request.GET
+        except json.decoder.JSONDecodeError:
+            return JsonResponse({"no image": "no image was supplised"})
+        routeImage = info["routeNumber"]
+        img = open(f'tmpVis/{routeImage}.png', 'rb')
+        response = FileResponse(img)
+        return response 
+
+    
 
 # https://api.telegram.org/bot<token>/setWebhook?url=<url>
 class rbHookView(View):
@@ -137,7 +151,7 @@ class rbHookView(View):
             ##################################################
             # Logic.delPlanningSession(callbackData)
             Reply.visualiseCallback(instance)
-            Reply.visualise(target,message_id)
+            Reply.visualise(sender,target,message_id)
             #########################################
             # SHIFTED TO BE LAST MESSAGE TO PROCESS #
             #########################################

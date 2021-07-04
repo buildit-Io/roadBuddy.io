@@ -1,4 +1,5 @@
 import json
+import requests
 
 def welcome(firstName, lastName):
     if lastName == "null":
@@ -135,10 +136,6 @@ MARKUP_MATRIX = {
                              [{"text": "Back", "callback_data" : "plan"}],
                              ]
     },
-    "VISUALISE" : {
-        "inline_keyboard" : [[{"text": "View Route", "url" : "https://www.google.com"},{"text": "Finish", "callback_data" : "options"}],
-                             ]
-    },
     "EDIT_PLAN" : {
         "inline_keyboard" : [[{"text": "Done", "callback_data" : "plan"}],
                              ]
@@ -228,7 +225,7 @@ REPLY_MATRIX = {
         "inline_message_id": "",
         "text": "",
         "parse_mode" : "Html",
-        "reply_markup": json.dumps(MARKUP_MATRIX['VISUALISE']),
+        "reply_markup": "",
     }, 
     "PRE_QUIT" : {
         "chat_id": "",

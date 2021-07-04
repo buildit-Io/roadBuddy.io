@@ -1,4 +1,5 @@
 import os
+import json
 from .speech import RESPONSES, REPLY_MATRIX, MARKUP_MATRIX, CALLBACK_MATRIX
 import requests
 import rbBot.botbrain.logic as Logic
@@ -138,9 +139,6 @@ def backToOptions(target,message_id):
 def preRouting(target,message_id,dict):
     return edit_message("PLAN_NEXT",RESPONSES["PLAN_NEXT"](dict),target,message_id)
 
-def visualise(target,message_id):
-    return edit_message("VISUALISE",RESPONSES["VISUALISE"],target,message_id)
-
 def preQuit(target,message_id):
     return edit_message("PRE_QUIT",RESPONSES["PRE_QUIT"],target,message_id)
 
@@ -151,6 +149,30 @@ def inlineQuit(target,message_id,sender):
 def commandQuit(target,sender):
     user = Logic.getUser(User,sender)
     return send_message("QUIT",RESPONSES["QUIT"](user.first_name,user.last_name),target)
+
+def visualise(sender,target, message_id):  
+    data = REPLY_MATRIX["VISUALISE"]
+    currUser = Logic.getUser(User,sender)
+    routeQuery = Logic.getRoute(currUser,currUser.planning_route)
+    if routeQuery.exists():
+        url = Logic.routeURL(routeQuery.get().id)
+    else:
+        url = Logic.routeURL("default")
+    markup = {
+        "inline_keyboard" : [[{"text": "View Route", "url" : url},
+                              {"text": "Finish", "callback_data" : "options"}]]
+    }
+    data["chat_id"] = target
+    data["reply_markup"] = json.dumps(markup)
+    data["message_id"] = message_id
+    data["text"] = RESPONSES["VISUALISE"]
+    ##################
+    # DEBUGGING LINE #
+    ##################
+    # print(data)
+    response = requests.post(
+        f"{TELEGRAM_URL}{TOKEN}/editMessageText",data=data
+    )
 
 def delete_message(chat_id, message_id):
     data = {
