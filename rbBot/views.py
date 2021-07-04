@@ -44,7 +44,7 @@ class rbHookView(View):
             self.callbackHandler(query)
         elif 'message' in data:
             message = data['message']
-            if not 'text' in message:
+            if 'text' not in message:
                 Reply.no_reply(message['from']['id'])
                 return
             else:
@@ -61,8 +61,8 @@ class rbHookView(View):
                     Reply.no_reply(sender)
                     return
 
-            if 'entities' in data:
-                if 'bot_command' in message['entities'][0]['type']:
+            if 'entities' in message:
+                if message['entities'][0]['type'] == "bot_command":
                     self.commandHandler(key[1:],message)
             else:
                 self.replyHandler(key,message)
