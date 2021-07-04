@@ -62,9 +62,9 @@ def addUser(message):
     if lookup.has_key('first_name'):
         newUser.first_name = lookup['first_name']
     if lookup.has_key('last_name'):
-        newUser.first_name = lookup['last_name']
+        newUser.last_name = lookup['last_name']
     if lookup.has_key('username'):
-        newUser.first_name = lookup['username']
+        newUser.username = lookup['username']
     newEntry.save()
 
 def deleteUser(message):
