@@ -31,6 +31,7 @@ class rbHookView(View):
         # DEBUGGING LINE #
         ##################
         print(telegramData)
+        print("endpoint1")
         ########################
         # COMMENT OUT TO RESET #
         ########################
@@ -39,16 +40,19 @@ class rbHookView(View):
     
     def postHandler(self,data):
         
+        print("endpoint2")
         if data.has_key('callback_query'):
             query = data['callback_query']
             self.callbackHandler(query)
         elif data.has_key('message'):
             message = data['message']
-            try:
-                key = message['text']
-            except KeyError:
-                Reply.no_reply(sender)
+            print("endpoint3")
+            if not message.has_key('text'):
+                print("endpoint4")
+                Reply.no_reply(message = data['message']['from']['id'])
                 return
+            else:
+                key = message['text']
 
             if key[1:] != "start":
                 sender = Logic.getTarget(message)
@@ -61,7 +65,7 @@ class rbHookView(View):
                     Reply.no_reply(sender)
                     return
 
-            if data.has_key('entities'):
+            if message.has_key('entities'):
                 if 'bot_command' in message['entities'][0]['type']:
                     self.commandHandler(key[1:],message)
             else:
