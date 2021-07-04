@@ -39,10 +39,10 @@ class rbHookView(View):
     
     def postHandler(self,data):
         
-        if 'callback_query' in data.keys():
+        if data.has_key('callback_query'):
             query = data['callback_query']
             self.callbackHandler(query)
-        elif 'message' in data.keys():
+        elif data.has_key('message'):
             message = data['message']
             try:
                 key = message['text']
@@ -61,7 +61,7 @@ class rbHookView(View):
                     Reply.no_reply(sender)
                     return
 
-            if message.has_key('entities'):
+            if data.has_key('entities'):
                 if 'bot_command' in message['entities'][0]['type']:
                     self.commandHandler(key[1:],message)
             else:
