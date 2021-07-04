@@ -44,7 +44,11 @@ class rbHookView(View):
             self.callbackHandler(query)
         elif 'message' in data.keys():
             message = data['message']
-            key = message['text']
+            try:
+                key = message['text']
+            except KeyError:
+                Reply.no_reply(sender)
+                return
 
             if key[1:] != "start":
                 sender = Logic.getTarget(message)
@@ -61,7 +65,6 @@ class rbHookView(View):
                 if 'bot_command' in message['entities'][0]['type']:
                     self.commandHandler(key[1:],message)
             else:
-                print("replying")
                 self.replyHandler(key,message)
         else: 
             return
@@ -180,7 +183,7 @@ class rbHookView(View):
         message_id = message['message_id']
         
         if message.has_key('animation') or message.has_key('document'):
-            print("reached")
+            print("sent invalid file -- fucking bastard")
             Reply.no_reply(sender)
             return
 
