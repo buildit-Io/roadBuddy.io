@@ -57,9 +57,9 @@ class rbHookView(View):
                     Reply.no_reply(sender)
                     return
 
-            if (('entities' in message.keys()):
-                if ('bot_command' in message['entities'][0]['type'])):
-                self.commandHandler(key[1:],message)
+            if 'entities' in message.keys():
+                if 'bot_command' in message['entities'][0]['type']:
+                    self.commandHandler(key[1:],message)
             else:
                 self.replyHandler(key,message)
         else: 
