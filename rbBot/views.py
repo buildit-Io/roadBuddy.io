@@ -41,15 +41,17 @@ class rbHookView(View):
     def postHandler(self,data):
         
         print("endpoint2")
+        print(data.has_key('message'))
         if data.has_key('callback_query'):
             query = data['callback_query']
             self.callbackHandler(query)
         elif data.has_key('message'):
-            message = data['message']
             print("endpoint3")
+            message = data['message']
+            print("endpoint4")
             if not message.has_key('text'):
-                print("endpoint4")
-                Reply.no_reply(message = data['message']['from']['id'])
+                print("endpoint5")
+                Reply.no_reply(message['from']['id'])
                 return
             else:
                 key = message['text']
