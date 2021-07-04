@@ -177,6 +177,11 @@ class rbHookView(View):
         sender = message['from']['id']
         message_id = message['message_id']
         
+
+        if message.has_key('animation') or message.has_key('document'):
+            Reply.no_reply(sender)
+            return
+
         if Logic.hasUser(User, sender):
             Reply.delete_message(sender,message_id)
             if Logic.isPlanning(sender):    
