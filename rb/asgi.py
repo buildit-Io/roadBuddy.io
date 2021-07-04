@@ -12,6 +12,6 @@ import os
 from django.core.asgi import get_asgi_application
 
 # settings.production is the production settings in the settings folder
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rb.settings.development')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rb.settings.production')
 
 application = get_asgi_application()
