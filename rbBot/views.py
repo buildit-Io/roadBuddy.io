@@ -31,7 +31,6 @@ class rbHookView(View):
         # DEBUGGING LINE #
         ##################
         print(telegramData)
-        print("endpoint1")
         ########################
         # COMMENT OUT TO RESET #
         ########################
@@ -40,17 +39,12 @@ class rbHookView(View):
     
     def postHandler(self,data):
         
-        print("endpoint2")
-        print(data.has_key('message'))
-        if data.has_key('callback_query'):
+        if 'callback_query' in data:
             query = data['callback_query']
             self.callbackHandler(query)
-        elif data.has_key('message'):
-            print("endpoint3")
+        elif 'message' in data:
             message = data['message']
-            print("endpoint4")
-            if not message.has_key('text'):
-                print("endpoint5")
+            if not 'text' in message:
                 Reply.no_reply(message['from']['id'])
                 return
             else:
@@ -67,7 +61,7 @@ class rbHookView(View):
                     Reply.no_reply(sender)
                     return
 
-            if message.has_key('entities'):
+            if 'entities' in data:
                 if 'bot_command' in message['entities'][0]['type']:
                     self.commandHandler(key[1:],message)
             else:
@@ -188,7 +182,7 @@ class rbHookView(View):
         sender = message['from']['id']
         message_id = message['message_id']
         
-        if message.has_key('animation') or message.has_key('document'):
+        if 'animation' in message or 'document' in message:
             print("sent invalid file -- fucking bastard")
             Reply.no_reply(sender)
             return

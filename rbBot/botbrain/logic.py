@@ -59,11 +59,11 @@ def addUser(message):
     newEntry.save()
     newUser = getUser(User,message['from']['id'])
     lookup = message['from']
-    if lookup.has_key('first_name'):
+    if 'first_name' in lookup:
         newUser.first_name = lookup['first_name']
-    if lookup.has_key('last_name'):
+    if 'last_name' in lookup:
         newUser.last_name = lookup['last_name']
-    if lookup.has_key('username'):
+    if 'username' in lookup:
         newUser.username = lookup['username']
     newEntry.save()
 
