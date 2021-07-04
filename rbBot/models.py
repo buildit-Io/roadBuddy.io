@@ -7,9 +7,9 @@ class Temp(models.Model):
 
 class User(models.Model):
     user_id     = models.BigIntegerField(unique=True, primary_key=True)
-    first_name  = models.CharField(max_length=64)
+    first_name  = models.CharField(max_length=64, default="null")
     last_name   = models.CharField(max_length=64, default="null")
-    username    = models.CharField(max_length=64)
+    username    = models.CharField(max_length=64, default="null")
     is_started    = models.BooleanField(default=True)
     is_planning = models.BooleanField(default=False)
     planning_route = models.BigIntegerField(default=0)

@@ -52,21 +52,19 @@ def deleteTmp(message):
     getUser(Temp,message['from']['id']).delete()
 
 def addUser(message):
-    try:
-        newEntry = User(
-            user_id = message['from']['id'],
-            first_name = message['from']['first_name'],
-            last_name = message['from']['last_name'],
-            username = message['from']['username'],
-            latest_message = message['message_id']
-        )
-    except KeyError:
-        newEntry = User(
-            user_id = message['from']['id'],
-            first_name = message['from']['first_name'],
-            username = message['from']['username'],
-            latest_message = message['message_id']
-        )
+    newEntry = User(
+        user_id = message['from']['id'],
+        latest_message = message['message_id']
+    )
+    newEntry.save()
+    newUser = getUser(User,message['from']['id'])
+    lookup = message['from']
+    if lookup.has_key('first_name'):
+        newUser.first_name = lookup['first_name']
+    if lookup.has_key('last_name'):
+        newUser.first_name = lookup['last_name']
+    if lookup.has_key('username'):
+        newUser.first_name = lookup['username']
     newEntry.save()
 
 def deleteUser(message):
