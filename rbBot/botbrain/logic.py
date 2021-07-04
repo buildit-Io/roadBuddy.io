@@ -313,7 +313,7 @@ IMAGE_URL = "https://roadbuddy-io.herokuapp.com/rbBot/route"
 LOCAL_IMAGE_URL = "https://b9a60c9f1db0.ngrok.io/rbBot/route"
 def routeURL(ImageSelector):
     response = requests.get(
-        LOCAL_IMAGE_URL,
+        IMAGE_URL,
         params={'routeNumber' : ImageSelector}
     )
     return str(response.request.url)
