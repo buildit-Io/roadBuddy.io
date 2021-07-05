@@ -56,15 +56,13 @@ def addUser(message):
         user_id = message['from']['id'],
         latest_message = message['message_id']
     )
-    newEntry.save()
-    newUser = getUser(User,message['from']['id'])
     lookup = message['from']
     if 'first_name' in lookup:
-        newUser.first_name = lookup['first_name']
+        newEntry.first_name = lookup['first_name']
     if 'last_name' in lookup:
-        newUser.last_name = lookup['last_name']
+        newEntry.last_name = lookup['last_name']
     if 'username' in lookup:
-        newUser.username = lookup['username']
+        newEntry.username = lookup['username']
     newEntry.save()
 
 def deleteUser(message):
