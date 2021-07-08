@@ -12,3 +12,5 @@ rb/settings/_secrets.py
 _test.py
 tests.py
 test.py
+venv
+weesingtest.py
