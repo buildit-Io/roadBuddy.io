@@ -38,8 +38,10 @@ class PlanningSession(models.Model):
 
 class Route(models.Model):
     route_id = models.BigIntegerField(default=None)
+    # deletes the route when user is deleted
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     destinations = models.TextField(max_length=4000, default="{}")
+    # empty values stored as none, set to null when planning session is deleted
     current_session = models.ForeignKey(PlanningSession,on_delete=models.SET_NULL, null=True)
     logged = models.BooleanField(default=False)
 
