@@ -3,7 +3,7 @@ from django.db import models
 # boilerplate
     
 def routeInfo_default_value(): 
-    return {"routes" : []} 
+    return { "routes" : [] } 
 
 # Create your models here.
 

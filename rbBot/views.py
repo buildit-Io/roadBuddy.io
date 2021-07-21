@@ -15,7 +15,7 @@ def route(request):
     if routeQuery.exists():
         info = routeQuery.get().info
         context = {
-            'routeDict' :  info,
+            'route' :  info['routes'][0],
         }
         return HttpResponse(template.render(context, request))
     return JsonResponse({"ERROR": "Route Does Not Exists"})
