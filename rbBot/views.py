@@ -47,7 +47,7 @@ class rbHookView(View):
         ########################
         # COMMENT OUT TO RESET #
         ########################
-        # self.postHandler(telegramData)
+        self.postHandler(telegramData)
         return JsonResponse({"ok": "POST request processed"})
     
     def postHandler(self,data):
