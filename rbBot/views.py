@@ -3,6 +3,7 @@ from django.views import View
 from django.template import loader
 from .models import PlanningSession, User, Temp, Route
 import json
+import os
 import rbBot.botbrain.logic as Logic
 import rbBot.botbrain.reply as Reply
 try:
