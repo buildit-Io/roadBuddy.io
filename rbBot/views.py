@@ -24,7 +24,7 @@ def route(request):
         info = routeQuery.get().info
         context = {
             'route' :  info['routes'][0],
-            'apiKey' : SECRET_KEY_3,
+            'apiKey' : os.getenv("SECRET_KEY_3", SECRET_KEY_3),
         }
         return HttpResponse(template.render(context, request))
     return JsonResponse({"ERROR": "Route Does Not Exists"})
