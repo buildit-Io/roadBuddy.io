@@ -11,27 +11,15 @@ def index(request):
 
 def route(request):
     template = loader.get_template("route.html")
-    print(request.GET)
-    info = request.GET
-    context = {
-        'routeDict' :  info,
-    }
-    return HttpResponse(template.render(context, request))
-
-class routeView(View):
-
-    def get(self, request, *args, **kwargs):
-        try:
-            info = request.GET
-        except json.decoder.JSONDecodeError:
-            return JsonResponse({"no image": "no image was supplied"})
-        routeImage = info["routeNumber"]
-        img = open(f'tmpVis/{routeImage}.png', 'rb')
-        response = FileResponse(img)
-        return response 
-
+    routeQuery = Route.objects.filter(id=request.GET['route'])
+    if routeQuery.exists():
+        info = routeQuery.get().info
+        context = {
+            'routeDict' :  info,
+        }
+        return HttpResponse(template.render(context, request))
+    return JsonResponse({"ERROR": "Route Does Not Exists"})
     
-
 # https://api.telegram.org/bot<token>/setWebhook?url=<url>
 class rbHookView(View):
 

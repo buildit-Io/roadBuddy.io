@@ -155,11 +155,9 @@ def visualise(sender,target, message_id):
     currUser = Logic.getUser(User,sender)
     routeQuery = Logic.getRoute(currUser,currUser.planning_route)
     if routeQuery.exists():
-        print("routeQuery exists")
-        url = Logic.routeURL(routeQuery.get().info)
+        url = Logic.routeURL(routeQuery.get().id)
     else:
-        print("routeQuery does not exists")
-        defaultRoute = json.dumps({"routes" : []})
+        defaultRoute = json.dumps(-1)
         url = Logic.routeURL(defaultRoute)
     markup = {
         "inline_keyboard" : [[{"text": "View Route", "url" : url},

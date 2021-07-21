@@ -45,7 +45,6 @@ else:
 
 ALLOWED_HOSTS = ['127.0.0.1','roadbuddy-io.herokuapp.com','localhost','0.0.0.0']
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -71,6 +70,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CSRF_USE_SESSIONS = True
 
 ROOT_URLCONF = 'rb.urls'
 

@@ -272,11 +272,13 @@ def genRoute(dests):
         return
     return response.json()
 
-VISUALISATION_URL = "https://roadbuddy-io.herokuapp.com/rbBot/route"
-LOCAL_VISUALISATION_URL = "https://ef28e92f8e13.ngrok.io/rbBot/route"
-def routeURL(route):
+VISUALISATION_URL = "https://roadbuddy-io.herokuapp.com/rbBot/route/"
+LOCAL_VISUALISATION_URL = "https://ef28e92f8e13.ngrok.io/rbBot/route/"
+def routeURL(routeId):
     response = requests.get(
-        VISUALISATION_URL,
-        params={'route' : route}
+        LOCAL_VISUALISATION_URL,
+        params= {
+            'route' : routeId,
+        },
     )
     return str(response.request.url)
