@@ -5,6 +5,14 @@ from .models import PlanningSession, User, Temp, Route
 import json
 import rbBot.botbrain.logic as Logic
 import rbBot.botbrain.reply as Reply
+try:
+    # HERE API Keys
+    import rb.settings._secrets as secure
+    SECRET_KEY_3 = secure.SECRET_KEY_3
+    SECRET_KEY_4 = secure.SECRET_KEY_4
+except ImportError:
+    SECRET_KEY_3 = "error_token"
+    SECRET_KEY_4 = "error_token"
 
 def index(request):
     return HttpResponse("Hello, world. This is the bot app.")
@@ -16,6 +24,7 @@ def route(request):
         info = routeQuery.get().info
         context = {
             'route' :  info['routes'][0],
+            'apiKey' : SECRET_KEY_3,
         }
         return HttpResponse(template.render(context, request))
     return JsonResponse({"ERROR": "Route Does Not Exists"})

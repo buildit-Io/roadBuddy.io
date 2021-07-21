@@ -66,7 +66,7 @@
     <div id="panel"></div>
     <script type="text/javascript" defer>
         var platform = new H.service.Platform({
-            apikey: '9w3WzgW7shQ0LFy6uOE9NgTHtbyeBMHDyvFjMZ_VXLE'
+            apikey: "{{ apiKey }}"
         });
         var defaultLayers = platform.createDefaultLayers();
         var map = new H.Map(document.getElementById('map'),
