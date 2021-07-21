@@ -1,5 +1,10 @@
 from django.db import models
 
+# boilerplate
+    
+def routeInfo_default_value(): 
+    return {"routes" : []} 
+
 # Create your models here.
 
 class Temp(models.Model):
@@ -37,11 +42,13 @@ class PlanningSession(models.Model):
         return f'Latest Planning Session {self.message_id} by {self.chat_id}'
 
 class Route(models.Model):
+
     route_id = models.BigIntegerField(default=None)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     destinations = models.TextField(max_length=4000, default="{}")
     current_session = models.ForeignKey(PlanningSession,on_delete=models.SET_NULL, null=True)
     logged = models.BooleanField(default=False)
+    info = models.JSONField(default=routeInfo_default_value)
 
     class Meta:
         ordering = ['id']

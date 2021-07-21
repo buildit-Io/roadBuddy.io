@@ -16,7 +16,6 @@ import requests
 
 GEOCODE_URL = "https://geocode.search.hereapi.com/v1/geocode"
 ROUTING_URL = "https://router.hereapi.com/v8/routes"
-MAPPING_URL = "https://image.maps.ls.hereapi.com/mia/1.6/routing"
 MAPVIEW_URL = "https://image.maps.ls.hereapi.com/mia/1.6/mapview"
 GEOCODE_TOKEN = os.getenv("SECRET_KEY_3", SECRET_KEY_3)
 
@@ -238,78 +237,46 @@ def confirmRoute(sender):
     for dest in destList:
         waypoint = str(dest['latitude']) + "," + str(dest['longtitude'])
         waypointList.append(waypoint)
-    genRoute(waypointList,route.id)
+    route.info = genRoute(waypointList)
+    route.save()
 
-def genRoute(dests,picId):
+def genRoute(dests):
     if len(dests) > 2:
-        count = 0
-        waypoints = {}
-        markers = {}
-        for dest in dests:
-            point = f'waypoint{count}'
-            mark = f'poix{count}'
-            waypoints[point] = dest
-            markers[mark] = dest + f";white;blue;30;{count}"
-            count+=1
-        paramSetA = {**waypoints,**markers}
-        paramSetB = {'ppi': 500,
-                    'f' : 0,
-                    'z': 19.75,
-                    'h': 2048,
-                    'w': 2048,
-                    't': 0,
-                    'lw': 6,
-                    'lc': '1652B4',
-                    'sc': '000000',
-                    'apiKey': GEOCODE_TOKEN,}
-        allParams = {**paramSetA,**paramSetB}
+        routeRequestParams = {
+            'return': 'polyline,turnByTurnActions,actions,instructions,travelSummary',
+            'routingMode': 'fast',
+            'transportMode': 'car',
+            'origin': dests[0], 
+            'destination': dests[-1],
+            'apiKey': GEOCODE_TOKEN,
+            'via': dests[1:-1],
+        }
         response = requests.get(
-            MAPPING_URL,
-            params= allParams
+            ROUTING_URL,
+            params=routeRequestParams
         )
     elif len(dests) == 2:
+        routeRequestParams = {
+            'return': 'polyline,turnByTurnActions,actions,instructions,travelSummary',
+            'routingMode': 'fast',
+            'transportMode': 'car',
+            'origin': dests[0], 
+            'destination': dests[-1],
+            'apiKey': GEOCODE_TOKEN,
+        }
         response = requests.get(
-            MAPPING_URL,
-            params={'ppi': 500,
-                    'f' : 0,
-                    'waypoint0': dests[0],
-                    'poix0': dests[0]+";white;blue;30;location 0",
-                    'waypoint1': dests[1],
-                    'poix1': dests[1]+";white;blue;30;location 1",
-                    'z': 19.75,
-                    'h': 2048,
-                    'w': 2048,
-                    't': 0,
-                    'lw': 6,
-                    'lc': '1652B4',
-                    'sc': '000000',
-                    'apiKey': GEOCODE_TOKEN,}
-        )
-    elif len(dests) == 1:
-        response = requests.get(
-            MAPVIEW_URL,
-            params={'c' : dests[0],
-                    'ppi':500,
-                    'z' : 19.75,
-                    'h': 2048,
-                    'w': 2048,
-                    'apiKey': GEOCODE_TOKEN}
+            ROUTING_URL,
+            params=routeRequestParams
         )
     else:
         return
-    #convert to image and save to name, store image name as route.id
-    print(f'picture development response: {response}')
-    # print(response.url)
-    data = response.content
-    with open(f'tmpVis/{picId}.png','wb') as f:
-       f.write(data) 
-     
+    return response.json()
 
-IMAGE_URL = "https://roadbuddy-io.herokuapp.com/rbBot/route"
-LOCAL_IMAGE_URL = "https://b9a60c9f1db0.ngrok.io/rbBot/route"
-def routeURL(ImageSelector):
+VISUALISATION_URL = "https://roadbuddy-io.herokuapp.com/rbBot/route"
+LOCAL_VISUALISATION_URL = "https://ef28e92f8e13.ngrok.io/rbBot/route"
+def routeURL(route):
     response = requests.get(
-        IMAGE_URL,
-        params={'routeNumber' : ImageSelector}
+        VISUALISATION_URL,
+        params={'route' : route}
     )
     return str(response.request.url)

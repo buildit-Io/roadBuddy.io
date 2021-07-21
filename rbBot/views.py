@@ -1,5 +1,6 @@
 from django.http import HttpResponse, JsonResponse, FileResponse
 from django.views import View
+from django.template import loader
 from .models import PlanningSession, User, Temp, Route
 import json
 import rbBot.botbrain.logic as Logic
@@ -8,13 +9,22 @@ import rbBot.botbrain.reply as Reply
 def index(request):
     return HttpResponse("Hello, world. This is the bot app.")
 
+def route(request):
+    template = loader.get_template("route.html")
+    print(request.GET)
+    info = request.GET
+    context = {
+        'routeDict' :  info,
+    }
+    return HttpResponse(template.render(context, request))
+
 class routeView(View):
 
     def get(self, request, *args, **kwargs):
         try:
             info = request.GET
         except json.decoder.JSONDecodeError:
-            return JsonResponse({"no image": "no image was supplised"})
+            return JsonResponse({"no image": "no image was supplied"})
         routeImage = info["routeNumber"]
         img = open(f'tmpVis/{routeImage}.png', 'rb')
         response = FileResponse(img)
@@ -25,6 +35,9 @@ class routeView(View):
 # https://api.telegram.org/bot<token>/setWebhook?url=<url>
 class rbHookView(View):
 
+    def get(self, request, *args, **kwargs):
+        return JsonResponse({"ok": "POST request processed"})
+
     def post(self, request, *args, **kwargs):
         telegramData = json.loads(request.body)
         ##################
@@ -34,7 +47,7 @@ class rbHookView(View):
         ########################
         # COMMENT OUT TO RESET #
         ########################
-        self.postHandler(telegramData)
+        # self.postHandler(telegramData)
         return JsonResponse({"ok": "POST request processed"})
     
     def postHandler(self,data):
@@ -87,7 +100,7 @@ class rbHookView(View):
         elif command == "quit":
             if Logic.isPlanning(sender):
                 Logic.stopPlanning(sender)
-                Logic.delPlanningSession(callbackData)
+                Logic.delPlanningSession(message)
             Reply.commandQuit(target,sender)
             Logic.deactivate(message_id,sender)
         else:
@@ -215,6 +228,3 @@ class rbHookView(View):
                     Reply.no_reply(sender)
         else:
             Reply.no_reply(sender)
-
-    def get(self, request, *args, **kwargs):
-        return JsonResponse({"ok": "POST request processed"})
