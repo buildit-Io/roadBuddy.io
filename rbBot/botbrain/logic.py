@@ -20,6 +20,7 @@ MAPVIEW_URL = "https://image.maps.ls.hereapi.com/mia/1.6/mapview"
 GEOCODE_TOKEN = os.getenv("SECRET_KEY_3", SECRET_KEY_3)
 
 def hasUser(model,search):
+    # TODO: consider following https://newbedev.com/python-django-check-if-user-already-exists-code-example
     try:
         model.objects.get(user_id=search)
         return True
