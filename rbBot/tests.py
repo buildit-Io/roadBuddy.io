@@ -1,6 +1,10 @@
+from requests.api import patch
+from rbBot.views import rbHookView
 from rbBot.models import Location, PlanningSession, Route, User
-from django.test import TestCase
-from .botbrain import logic
+from django.test import TestCase, RequestFactory
+from unittest import mock
+from unittest.mock import call
+import json
 
 # Create your tests here.
 
@@ -10,6 +14,11 @@ from .botbrain import logic
 # test logic of user behaviour
 # test multiple users behaviour doesnt clash
 
+# APICALLS INTEGRATION TEST
+
+
+
+# MODELS TEST
 
 class ModelUserTest(TestCase):
     # Tests default fields
@@ -207,6 +216,63 @@ class ModelLocationTest(TestCase):
         self.assertEquals(savedLoc[0], first_loc)
         self.assertEquals(savedLoc[1], second_loc)
     
+# This class groups tests on post requests with callback_query data field
+
+
+class CallbackQueryTest(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        # create request body containing data from request
+        # 1) contains: 'callback_query' field
+        
+        # 2) contains 'message'
+        #   a) contains text
+    
+    # test post request where user is not recorded in database
+    @mock.patch('rbBot.botbrain.reply.requests') # mock telegram posts
+    @mock.patch('rbBot.botbrain.reply.TOKEN', "mockToken") # mocks credentials for telegram
+    def test_invalid_user(self, teleMock):
+        # NOTE: Would have preferred to mock os.getenv instead of token directly, but
+        #       unittest sucks I actually spent 3 weeks trying to do this more rigorously
+        
+        # Given
+        instance = 54235
+        chat_id = 53425
+        body = {
+            "callback_query": {
+                "from": {
+                    "id": 0 # sender, irrelevant
+                },
+                "id": instance,    # instance
+                "message": {
+                    "message_id": 0,    # message_id, irrelevant
+                    "chat": {
+                        "id": chat_id,    # target 
+                    }
+                },
+                
+            }
+        }
+        
+        # When
+        request = self.factory.post('/rbBot/bot-hook/', data=json.dumps(body),
+                                    content_type='application/json')        
+        rbHookView.as_view()(request)
+        wantedCalls = [call('https://api.telegram.org/botmockToken/answerCallbackQuery', data={'callback_query_id': instance, 'text': 'This message has expired and is no longer valid.', 'show_alert': True, 'url': '', 'cache_time': 0}), 
+                       call('https://api.telegram.org/botmockToken/sendMessage', data={'chat_id': chat_id, 'text': 'Please input a valid command', 'parse_mode': 'Markdown'})]
+        
+        # Then
+        self.assertEqual(wantedCalls, teleMock.post.call_args_list)
+        
+        
+        
+    def tearDown(self) -> None:
+        pass
+        
+        
+        
+        
+
 # class logicTest(TestCase):
 #     def setUp(self):
 #         # TODO: create user(s) to test with
@@ -216,3 +282,17 @@ class ModelLocationTest(TestCase):
 #         fake_user = 327761768
 #         fake_message_id = 1007
 #         logic.activate(fake_message_id,fake_user)
+
+
+# TEST HELPERS
+# def setup_view(view, request, *args, **kwargs):
+#     """
+#     Mimic ``as_view()``, but returns view instance.
+#     Use this function to get view instances on which you can run unit tests,
+#     by testing specific methods.
+#     """
+
+#     view.request = request
+#     view.args = args
+#     view.kwargs = kwargs
+#     return view
