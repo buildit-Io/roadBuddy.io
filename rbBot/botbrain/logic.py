@@ -19,9 +19,6 @@ ROUTING_URL = "https://router.hereapi.com/v8/routes"
 MAPVIEW_URL = "https://image.maps.ls.hereapi.com/mia/1.6/mapview"
 GEOCODE_TOKEN = os.getenv("SECRET_KEY_3", SECRET_KEY_3)
 
-def getTarget(data):
-    return data['from']['id']
-
 def hasUser(model,search):
     try:
         model.objects.get(user_id=search)
@@ -67,6 +64,21 @@ def addUser(message):
 def deleteUser(message):
     getUser(User,message['from']['id']).delete()
 
+def wipeData(callbackData):
+    deleteUser(callbackData)
+    newEntry = User(
+        user_id = callbackData['from']['id'],
+        latest_message = callbackData['message']['message_id']
+    )
+    lookup = callbackData['from']
+    if 'first_name' in lookup:
+        newEntry.first_name = lookup['first_name']
+    if 'last_name' in lookup:
+        newEntry.last_name = lookup['last_name']
+    if 'username' in lookup:
+        newEntry.username = lookup['username']
+    newEntry.save()
+
 def activate(message_id,sender):
     user = getUser(User,sender)
     if not user.is_started:
@@ -84,7 +96,10 @@ def deactivate(message_id,sender):
 def isPlanning(sender):
     return getUser(User,sender).is_planning;
 
-def addPlanningSession(callbackData):
+def isEditing(sender):
+    return getUser(User,sender).is_editing;
+
+def addPlanningSession(callbackData,route_id):
     currUser = getUser(User,callbackData['from']['id'])
     newEntry = PlanningSession(
         chat_id = callbackData['message']['chat']['id'],
@@ -94,21 +109,36 @@ def addPlanningSession(callbackData):
         message = callbackData['message']['text'],
     )
     newEntry.save()
-    newPlanningState(callbackData)
+    if route_id == -1:
+        newPlanningState(callbackData)
+    else:
+        currUser.planning_route = route_id
+        currUser.save()
 
-def delPlanningSession(callbackData):
+def delPlanningSession(callbackData,mode):
     searchRes = PlanningSession.objects.get(user=getUser(User,callbackData['from']['id']))
     searchRes.delete()
-    delUnsavedRoute(callbackData['from']['id'])
+    if mode == -1:
+        delUnsavedRoute(callbackData['from']['id'])
 
 def startPlanning(sender):
     user = getUser(User,sender)
     user.is_planning = True;
     user.save()
 
+def startEditing(sender):
+    user = getUser(User,sender)
+    user.is_editing = True;
+    user.save()
+
 def stopPlanning(sender):
     user = getUser(User,sender)
     user.is_planning = False;
+    user.save()
+
+def stopEditing(sender):
+    user = getUser(User,sender)
+    user.is_editing = False;
     user.save()
 
 def getResult(input):
@@ -163,24 +193,54 @@ def logDest(result,sender):
         )
         newEntry.save()
 
-def getRoute(user,route_id):
-    return Route.objects.filter(user=user,route_id=route_id)
+def setDestChange(key,sender):
+    currUser = getUser(User,sender)
+    currUser.key_for_dest = key
+    currUser.save()
+
+def logReplacement(input,sender):
+    currUser = getUser(User,sender)
+    currUser.new_dest = input
+    currUser.save()
+
+def canChange(sender):
+    currUser = getUser(User,sender)
+    if currUser.new_dest == None:
+        return False
+    else:
+        return True
+
+def getRoute(user,selector_or_id):
+    if selector_or_id == -1:
+        return Route.objects.filter(user=user)
+    else:
+        return Route.objects.filter(user=user,route_id=selector_or_id)
 
 def newPlanningState(callbackData):
     currUser = getUser(User,callbackData['from']['id'])
     currUser.planning_route = currUser.routes_created+1
     currUser.save()
     
+def replaceInRoute(sender):
+    currUser = User.objects.get(user_id=sender)
+    currRouteQuery = getRoute(currUser,currUser.planning_route)
+    if currRouteQuery.exists():
+        currRoute = currRouteQuery.get()
+        newRoute = json.loads(currRoute.destinations)
+        newRoute[currUser.key_for_dest] = currUser.new_dest
+        currRoute.destinations = json.dumps(newRoute)
+        currUser.new_dest = None
+        currUser.key_for_dest = None
+        currRoute.save()
+        currUser.save()
+
 def addToRoute(result,locInput,sender):
     currUser = User.objects.get(user_id=sender)
     currSession = PlanningSession.objects.get(user=currUser)
     query = getRoute(currUser,currUser.planning_route)
-    if len(query) > 1:
-        print("error")
-        return
     # This is a new route signal
     if not query.exists():
-        dests = json.dumps({1:locInput})
+        dests = json.dumps({"Start Point":locInput})
         newRoute = Route(
             route_id = currUser.planning_route,
             user = currUser,
@@ -192,15 +252,34 @@ def addToRoute(result,locInput,sender):
         currLoc = getLoc(result).get()
         currLoc.routes.add(newQuery.get())
         currLoc.save()
+        return
     else:
         loc = getLoc(result).get()
         newRoute = query.get()
         loc.routes.add(newRoute)
         loc.save()
         dests = json.loads(newRoute.destinations)
-        dests[len(dests)+1] = locInput
+        if len(dests) > 1:
+            dests["".join("Stop No. %s" % str(len(dests)))] = dests.pop("End Point")
+        dests["End Point"] = locInput
         newRoute.destinations = json.dumps(dests)
         newRoute.save()
+
+def duplicateRoute(old_route_id,sender):
+    currUser = getUser(User,sender)
+    currRoute = getRoute(currUser,old_route_id).get()
+    newRoute = Route(
+        route_id = currUser.planning_route,
+        user = currUser,
+        current_session = PlanningSession.objects.get(user=currUser),
+        destinations = currRoute.destinations
+    )
+    newRoute.save()
+    newRoute = getRoute(currUser,currUser.planning_route).get() 
+    destSetQuery = Location.objects.filter(routes=currRoute)
+    for dest in destSetQuery:
+        dest.routes.add(newRoute)
+        dest.save()
 
 def delUnsavedRoute(sender):
     currUser = User.objects.get(user_id=sender)
@@ -230,12 +309,12 @@ def confirmRoute(sender):
         return
     route = routeQuery.get()
     route.logged = True
-    route.save()
+    route.save
     destSet = Location.objects.filter(routes=route).values('latitude','longtitude')
     destList = list(destSet)
     waypointList = []
     for dest in destList:
-        waypoint = str(dest['latitude']) + "," + str(dest['longtitude'])
+        waypoint = ''.join("%s , %s" % (str(dest['latitude']) , str(dest['longtitude'])))
         waypointList.append(waypoint)
     route.info = genRoute(waypointList)
     route.save()
@@ -273,12 +352,31 @@ def genRoute(dests):
     return response.json()
 
 VISUALISATION_URL = "https://roadbuddy-io.herokuapp.com/rbBot/route/"
-LOCAL_VISUALISATION_URL = "https://eb6e4e3d5acb.ngrok.io/rbBot/route/"
+LOCAL_VISUALISATION_URL = "https://86ba6f0eb715.ngrok.io/rbBot/route/"
 def routeURL(routeId):
     response = requests.get(
         VISUALISATION_URL,
         params= {
             'route' : routeId,
         },
+    )
+    return str(response.request.url)
+
+ORGANISER_URL = "https://roadbuddy-io.herokuapp.com/rbBot/organiser/"
+LOCAL_ORGANISER_URL = "https://86ba6f0eb715.ngrok.io/rbBot/organiser/"
+def orderURL(routeId):
+    response = requests.get(
+        ORGANISER_URL,
+        params= {
+            'route' : routeId,
+        },
+    )
+    return str(response.request.url)
+
+SETTINGS_URL = "https://roadbuddy-io.herokuapp.com/rbBot/organiser/"
+LOCAL_SETTINGS_URL = "https://86ba6f0eb715.ngrok.io/rbBot/settings/"
+def settingsURL():
+    response = requests.get(
+        SETTINGS_URL
     )
     return str(response.request.url)

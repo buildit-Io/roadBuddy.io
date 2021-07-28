@@ -15,10 +15,12 @@ Including another URLconf
 """
 from django.urls import path
 from django.views.decorators.csrf import csrf_exempt
-from .views import index, rbHookView, route
+from .views import index, rbHookView, route, organiser, settings
  
 urlpatterns = [
     path('index/', index),
     path('route/', csrf_exempt(route)),
+    path('organiser/', csrf_exempt(organiser)),
+    path('settings/', csrf_exempt(settings)),
     path('bot-hook/', csrf_exempt(rbHookView.as_view())),
 ]
