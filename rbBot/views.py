@@ -19,6 +19,7 @@ def index(request):
     return HttpResponse("Hello, world. This is the bot app.")
 
 def route(request):
+    print("4")
     template = loader.get_template("route.html")
     routeQuery = Route.objects.filter(id=request.GET['route'])
     if routeQuery.exists():
