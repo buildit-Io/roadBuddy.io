@@ -301,9 +301,7 @@ def visualise(sender,target, message_id):
     data = REPLY_MATRIX["URL"]
     currUser = Logic.getUser(User,sender)
     routeQuery = Logic.getRoute(currUser,currUser.planning_route)
-    print("1")
     if routeQuery.exists():
-        print("2")
         url = Logic.routeURL(routeQuery.get().id)
     else:
         print("3")

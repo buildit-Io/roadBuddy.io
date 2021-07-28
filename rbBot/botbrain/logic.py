@@ -314,7 +314,7 @@ def confirmRoute(sender):
     destList = list(destSet)
     waypointList = []
     for dest in destList:
-        waypoint = ''.join("%s , %s" % (str(dest['latitude']) , str(dest['longtitude'])))
+        waypoint = ''.join("%s,%s" % (str(dest['latitude']) , str(dest['longtitude'])))
         waypointList.append(waypoint)
     route.info = genRoute(waypointList)
     route.save()
